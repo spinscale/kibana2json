@@ -28,6 +28,8 @@ or with JQ
 echo '{ "foo" : """what"ever""" }' | ./kibana2json | jq ".foo"
 ```
 
+**Note**: If you just call `kibana2json` it will try to read from stdin and just hang, as nothing is read. You can exit by hitting `ctrl+c`. Happy to receive PRs to improve this behaviour.
+
 ## Development
 
 Most likely you found a bug in this pretty raw tool.

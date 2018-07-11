@@ -8,7 +8,9 @@ The tool checks for beginning and end of triple double quotes, escapes all doubl
 
 ## Installation
 
-Install crystal, run `crystal build --release` and use the `kibana2json` binary created in the directory.
+First, make sure you have crystal installed. See the [crystal install docs](https://crystal-lang.org/docs/installation/).
+
+Second, run `crystal build --release src/kibana2json.cr` and use the `kibana2json` binary created in the directory.
 
 ## Usage
 
@@ -30,6 +32,8 @@ echo '{ "foo" : """what"ever""" }' | ./kibana2json | jq ".foo"
 
 Most likely you found a bug in this pretty raw tool.
 In that case please write a failing test in `spec/json_parser_spec.cr`, fix it and open a pull request. Alternatively open an issue with a sample snippet of JSON and I'll take a look at it when possible.
+
+You can run the tests locally by running `crystal spec`. 
 
 ## Contributing
 

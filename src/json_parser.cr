@@ -19,11 +19,9 @@ class Parser
       if endOffset.nil?
         raise Exception.new("Uneven number of triple ticks")
       else
-        # this only works for one more character now, but should work for an arbitrary amount
-        if data[endOffset + 3]?
-          if data[endOffset + 3] == '"'
+        # make sure the end offset are the outer most triple ticks
+        while data[endOffset + 3]? && data[endOffset + 3] == '"'
             endOffset += 1
-          end
         end
 
         # now do all the replace magic here

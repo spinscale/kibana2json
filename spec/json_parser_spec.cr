@@ -53,8 +53,8 @@ context "kibana2json parser" do
   end
 
   it "catches the outmost three ticks" do
-    input = %q("""field:"Land"""" something else here)
-    output = %q("field:\"Land\"" something else here)
+    input = %q("""field:"Land"""" something else here and """five ticks""""")
+    output = %q("field:\"Land\"" something else here and "five ticks\"\"")
     Parser.new.parse(input).should eq(output)
   end
 

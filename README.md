@@ -1,6 +1,6 @@
 # kibana2json
 
-A simple helper to reformat JSON pasted from Kibana that uses the famoues triple ticks (`"""`) and thus has multi line scripts and broken search queries back to valid JSON.
+A simple helper to reformat JSON pasted from Kibana that uses the famous triple ticks (`"""`) and thus has multi line scripts and broken search queries back to valid JSON.
 
 This helps to run `jq` or JSON formatting tools on the command line against those JSON files.
 
@@ -27,8 +27,6 @@ or with JQ
 ```
 echo '{ "foo" : """what"ever""" }' | ./kibana2json | jq ".foo"
 ```
-
-**Note**: If you just call `kibana2json` it will try to read from stdin and just hang, as nothing is read. You can exit by hitting `ctrl+c`. Happy to receive PRs to improve this behaviour.
 
 ## Development
 

@@ -1,6 +1,6 @@
 require "spec"
 require "../src/json_parser"
-require "JSON"
+require "json"
 
 parser = Parser.new
 

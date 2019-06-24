@@ -84,4 +84,11 @@ describe "text parser" do
     JSON.parse(output)
   end
 
+  it "should take care of double escapes" do
+    input = %q({ "query" : """select * from \"kibana_sample_data_ecommerce\"""" })
+    output = %q({ "query" : "select * from \"kibana_sample_data_ecommerce\"" })
+    parser.parse(input).should eq(output)
+    JSON.parse(output)
+  end
+
 end

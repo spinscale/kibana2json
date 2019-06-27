@@ -56,15 +56,12 @@ class Parser
               if reader.has_next?
                 reader.next_char
                 case reader.current_char
-                when '\\'
+                when '\\', '\0', '\n'
                   escaped << '\\' << '\\'
                 when '"'
                   # special case to keep already escaped \" as is without further escaping
+                  # makes it a bit more readable
                   escaped << '\\' << '"'
-                when '\0'
-                  escaped << '\\' << '\\'
-                when '\n'
-                  escaped << '\\' << '\\'
                 else
                   escaped << '\\' << '\\' << reader.current_char
                 end
@@ -72,8 +69,7 @@ class Parser
                 escaped << '\\' << '\\'
               end
 
-            when '\0'
-            when '\n'
+            when '\0', '\n'
               # do nothing here
 
             when '"'

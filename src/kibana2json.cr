@@ -29,7 +29,7 @@ end
 json_parser = Parser.new
 
 begin
-  puts json_parser.parse(STDIN)
+  puts json_parser.parse(STDIN, STDOUT)
 rescue ex : Exception
   puts "Exiting: #{ex.message}"
 end

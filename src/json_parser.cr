@@ -1,81 +1,102 @@
 class Parser
-  def parse(data : String)
-    matcher = %q(""")
-    pos = 0
-    startOffset = data.index(matcher)
-    if startOffset.nil?
-      return data
-    end
+
+  # for testing
+  def parse(str : String)
+    parse IO::Memory.new str
+  end
+
+  def parse(input : IO)
     escaped = String.build do |escaped|
 
-      # include the first characters before the first """
-      if pos == 0 && !startOffset.nil? && startOffset > 0
-        escaped << data[pos..startOffset - 1]
-      end
+      while true
+        read_until_ticks_start = input.gets %q(""")
 
-      while !startOffset.nil?
-        endOffset = 0
-        elapsed_start_offset_time = Time.measure do
-          endOffset = data.index(matcher, startOffset + 1)
+        # are we done reading?
+        end_of_input = read_until_ticks_start.nil?
+        if end_of_input
+          break
+        else
+          # no triple escapes, let's go home immediately
+          if !read_until_ticks_start.nil? && !read_until_ticks_start.includes?(%q("""))
+            escaped << read_until_ticks_start
+            break
+          end
         end
 
-        if endOffset.nil?
+        # remove triple ticks here if they are the last three characters
+        if !read_until_ticks_start.nil? && read_until_ticks_start.includes?(%q("""))
+          escaped << read_until_ticks_start[0..-4]
+        else
+          escaped << read_until_ticks_start
+        end
+
+        # find the next three tickst that close this
+        to_be_escaped = input.gets %q(""")
+
+        # no second triple ticks found, bail out
+        if to_be_escaped.nil? || (!to_be_escaped.nil? && !to_be_escaped.includes?(%q(""")))
           raise Exception.new("Uneven number of triple ticks")
         else
-          # make sure the end offset are the outer most triple ticks
-          # i.e. when """", pick the last three
-          elapsed_three_ticks_time = Time.measure do
-            while data[endOffset + 3]? && data[endOffset + 3] == '"'
-                endOffset += 1
-            end
+          # check next characters if they are also a double tick
+          # be sure those are the last closing ticks
+          next_char = input.read_char
+          while next_char == '"'
+            to_be_escaped = to_be_escaped + '"'
+            next_char = input.read_char
           end
 
-          # now do all the replace magic here
-          # but double ticks at beginning and end
-          # remove triple ticks
-          # replace double ticks with double ticks + backspace
-          # one exception: if there is already an escaped character like `\"` do not double escape, as this can break JSON
+          escaped << '"'
 
-          elapsed_escaping_time = Time.measure do
-            # begin escape
-            escaped << '"'
-            currentStartOffset = startOffset + 3
-            currentEndOffset = endOffset - 1
-            while currentStartOffset <= currentEndOffset
-              currentChar = data[currentStartOffset]
-              if currentChar == '"' && data[currentStartOffset-1] != '\\'
-                escaped << '\\' << '"'
-              elsif currentChar == '\n' # do nothing in case of newline
+          # remove ending triple ticks
+          reader = Char::Reader.new to_be_escaped[0..-4]
+          loop do
+            case reader.current_char
+
+            when '\\'
+              if reader.has_next?
+                reader.next_char
+                case reader.current_char
+                when '\\'
+                  escaped << '\\' << '\\'
+                when '"'
+                  # special case to keep already escaped \" as is without further escaping
+                  escaped << '\\' << '"'
+                when '\0'
+                  escaped << '\\' << '\\'
+                when '\n'
+                  escaped << '\\' << '\\'
+                else
+                  escaped << '\\' << '\\' << reader.current_char
+                end
               else
-                escaped << data[currentStartOffset]
+                escaped << '\\' << '\\'
               end
 
-              currentStartOffset += 1
-            end
+            when '\0'
+            when '\n'
+              # do nothing here
 
-            # end escape
-            escaped << '"'
-          end
-
-          elapsed_next_endoffset_time = Time.measure do
-            # find the next triple quotes
-            startOffset = data.index(matcher, endOffset + 1)
-            # no more startOffset means, there are no more occurences
-            if startOffset.nil?
-              escaped << data[endOffset + 3..-1]
+            when '"'
+              # escape double tick to keep valid JSON
+              escaped << '\\' << '"'
             else
-              # ensure the last """ is not included
-              escaped << data[endOffset + 3..startOffset - 1]
+              escaped << reader.current_char
             end
-            pos = endOffset
+
+            break if !reader.has_next?
+            reader.next_char
           end
 
-          #STDERR.puts "next start offset #{elapsed_start_offset_time.milliseconds}ms, escaping #{elapsed_escaping_time.milliseconds}ms, next endoffset quotes #{elapsed_next_endoffset_time.milliseconds}ms, elapsed_three_ticks_time #{elapsed_three_ticks_time.milliseconds}ms"
+          escaped << '"'
 
+          # append next_char at the end, if at end of
+          break if next_char.nil?
+          escaped << next_char
         end
       end
     end
 
-    return escaped
+    escaped
   end
+
 end

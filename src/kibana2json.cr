@@ -27,10 +27,9 @@ if isPiped == false
 end
 
 json_parser = Parser.new
-data = STDIN.gets_to_end
 
 begin
-  puts json_parser.parse(data)
+  puts json_parser.parse(STDIN)
 rescue ex : Exception
   puts "Exiting: #{ex.message}"
 end

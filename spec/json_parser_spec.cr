@@ -86,9 +86,33 @@ describe "text parser" do
 
   it "should take care of double escapes" do
     input = %q({ "query" : """select * from \"kibana_sample_data_ecommerce\"""" })
-    output = %q({ "query" : "select * from \"kibana_sample_data_ecommerce\"" })
-    parser.parse(input).should eq(output)
+    expected_output = %q({ "query" : "select * from \"kibana_sample_data_ecommerce\"" })
+    output = parser.parse(input)
+    JSON.parse(parser.parse(input))
+    output.should eq(expected_output)
+  end
+
+  it "check single backslash with space is handled" do
+    input = %q({ "key" : """backslash\ """ })
+    expected_output = %q({ "key" : "backslash\\ " })
+    output = parser.parse(input)
+    JSON.parse(output)
+    output.should eq(expected_output)
+  end
+
+  it "check single backslash without space is handled" do
+    input = %q({ "key" : """backslash\""" })
+    expected_output = %q({ "key" : "backslash\\" })
+    output = parser.parse(input)
+    output.should eq(expected_output)
     JSON.parse(output)
   end
 
+  it "check single backslash with newline is handled" do
+    input = "{ \"key\" : \"\"\"backslash\"\\\nfoo\"\"\" }"
+    expected_output = "{ \"key\" : \"backslash\\\"\\\\foo\" }"
+    output = parser.parse(input)
+    JSON.parse(output)
+    output.should eq(expected_output)
+  end
 end

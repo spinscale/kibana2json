@@ -1,3 +1,5 @@
+require "json"
+
 class Parser
 
   # for testing
@@ -46,45 +48,11 @@ class Parser
           next_char = input.read_char
         end
 
-        output << '"'
-
-        # remove ending triple ticks
-        reader = Char::Reader.new to_be_escaped[0..-4]
-        loop do
-          case reader.current_char
-
-          when '\\'
-            if reader.has_next?
-              reader.next_char
-              case reader.current_char
-              when '\\', '\0', '\n'
-                output << '\\' << '\\'
-              when '"'
-                # special case to keep already escaped \" as is without further escaping
-                # makes it a bit more readable
-                output << '\\' << '"'
-              else
-                output << '\\' << '\\' << reader.current_char
-              end
-            else
-              output << '\\' << '\\'
-            end
-
-          when '\0', '\n'
-            # do nothing here
-
-          when '"'
-            # escape double tick to keep valid JSON
-            output << '\\' << '"'
-          else
-            output << reader.current_char
-          end
-
-          break if !reader.has_next?
-          reader.next_char
-        end
-
-        output << '"'
+        builder = JSON::Builder.new output
+        builder.start_document
+        # remove the last triple ticks
+        builder.string to_be_escaped[0..-4]
+        builder.end_document
 
         # append next_char at the end, if at end of
         break if next_char.nil?
@@ -92,5 +60,4 @@ class Parser
       end
     end
   end
-
 end

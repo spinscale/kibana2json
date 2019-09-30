@@ -10,7 +10,7 @@ The tool checks for beginning and end of triple double quotes, escapes all doubl
 
 First, make sure you have crystal installed. See the [crystal install docs](https://crystal-lang.org/docs/installation/).
 
-Second, run `crystal build --release src/kibana2json.cr` and use the `kibana2json` binary created in the directory.
+Second, run `crystal build --release src/kibana2json.cr` and use the `kibana2json` binary created in the directory. Alternatively you can run `shards build --production --release`
 
 ## Usage
 

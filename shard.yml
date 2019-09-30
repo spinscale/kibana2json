@@ -8,6 +8,6 @@ targets:
   kibana2json:
     main: src/kibana2json.cr
 
-crystal: 0.29.0
+crystal: 0.31.0
 
 license: MIT

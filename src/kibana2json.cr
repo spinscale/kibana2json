@@ -2,7 +2,7 @@ VERSION = "0.1.0"
 require "option_parser"
 require "./json_parser"
 
-OptionParser.parse! do |parser|
+OptionParser.parse do |parser|
   parser.banner = "Usage: kibana2json < your_json.json"
   parser.on("-v", "--version", "Version info and exit") {
     puts VERSION
